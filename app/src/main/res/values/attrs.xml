@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AuthEditText">
+        <attr name="isEmail" format="boolean" />
+        <attr name="isPassword" format="boolean" />
+    </declare-styleable>
+</resources>

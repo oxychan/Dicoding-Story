@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dicoding Story</string>
+    <string name="login_logo">login logo</string>
+    <string name="login">Sign in</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="btn_login_text">Masuk</string>
+    <string name="register_logo">register logo</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="btn_register_text">Daftar</string>
+    <string name="name">Nama</string>
+    <string name="have_account">punya akun?</string>
+    <string name="register">Daftar</string>
+    <string name="don_t_have_account_yet">belum punya akun?</string>
+    <string name="register_from_login">Daftar</string>
+    <string name="enter_description">Masukan deskripsi</string>
+    <string name="camera">Kamera</string>
+    <string name="gallery">Galeri</string>
+    <string name="upload">Unggah</string>
+    <string name="posted_by">dipublikasi oleh:</string>
+    <string name="posted_at">dipublikasi pada:</string>
+    <string name="description">deskripsi:</string>
+    <string name="user_stories">user stories</string>
+
+    <string name="hello_name">Halo, %1$s</string>
+
+    <string name="good_morning">Selamat Pagi</string>
+    <string name="good_afternoon">Selamat Siang</string>
+    <string name="good_night">Selamat Malam</string>
+
+    <string name="error_password">Password harus lebih dari atau 8 karakter</string>
+    <string name="error_email">Email tidak sesuai</string>
+
+    <string name="preview_photo_result">Preview hasil foto</string>
+    <string name="shoot_button">ambil gambar</string>
+    <string name="switch_camera_type_button">ganti jenis kamera</string>
+    <string name="logout_button">logout</string>
+    <string name="add_story">tambah cerita</string>
+</resources>

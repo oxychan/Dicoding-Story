@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">Dicoding Story</string>
+    <string name="login_logo">login logo</string>
+    <string name="login">Sign in</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="btn_login_text">Login</string>
+    <string name="register_logo">register logo</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="btn_register_text">Register</string>
+    <string name="name">Name</string>
+    <string name="have_account">have account?</string>
+    <string name="register">Register</string>
+    <string name="don_t_have_account_yet">don\'t have account yet?</string>
+    <string name="register_from_login">Register</string>
+    <string name="enter_description">Enter description</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="upload">Upload</string>
+    <string name="posted_by">posted by:</string>
+    <string name="posted_at">posted at:</string>
+    <string name="description">description:</string>
+    <string name="user_stories">user stories</string>
+
+    <string name="hello_name">Hello, %1$s</string>
+
+    <string name="good_morning">Good Morning</string>
+    <string name="good_afternoon">Good Afternoon</string>
+    <string name="good_night">Good Night</string>
+
+    <string name="error_password">Password must be at least 8 characters</string>
+    <string name="error_email">Email not valid</string>
+
+    <string name="preview_photo_result">Preview foto result</string>
+    <string name="shoot_button">shoot photo</string>
+    <string name="switch_camera_type_button">switch camera type</string>
+    <string name="logout_button">logout</string>
+    <string name="add_story">add story</string>
+</resources>
