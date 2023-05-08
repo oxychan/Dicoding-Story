@@ -14,15 +14,6 @@ import com.dicoding.dicodingstory.data.response.Story
 
 class MainViewModel(private val storyRepository: StoryRepository) : ViewModel() {
 
-    suspend fun getStories(
-        token: String,
-        page: Int,
-        size: Int,
-        location: Int
-    ): LiveData<Result<StoriesResponse>> {
-        return storyRepository.getStories("Bearer $token", page, size, location)
-    }
-
     fun getStoriesWithPaging(): LiveData<PagingData<Story>> {
         return storyRepository.getStoriesWithPaging().cachedIn(viewModelScope)
     }

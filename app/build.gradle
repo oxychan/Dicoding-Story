@@ -42,7 +42,7 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     //retrofit
@@ -79,6 +79,12 @@ dependencies {
 
     // paging 3
     implementation "androidx.paging:paging-runtime-ktx:3.1.1"
+
+    // testing for paging
+    testImplementation "androidx.arch.core:core-testing:2.2.0" // InstantTaskExecutorRule
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4" //TestDispatcher
+    testImplementation 'org.mockito:mockito-core:4.4.0'
+    testImplementation 'org.mockito:mockito-inline:4.4.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
