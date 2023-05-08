@@ -38,6 +38,14 @@
         android:inputType="text"
         android:autofillHints="name" />
 
+    <CheckBox
+        android:id="@+id/cb_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/et_desc"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/show_my_location"/>
+
     <Button
         android:id="@+id/btn_camera_x"
         android:layout_width="0dp"

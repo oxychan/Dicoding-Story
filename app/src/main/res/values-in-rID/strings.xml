@@ -37,4 +37,6 @@
     <string name="switch_camera_type_button">ganti jenis kamera</string>
     <string name="logout_button">logout</string>
     <string name="add_story">tambah cerita</string>
+
+    <string name="show_my_location">tampilkan lokasi saya</string>
 </resources>

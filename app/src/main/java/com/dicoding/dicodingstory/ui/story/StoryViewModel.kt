@@ -22,6 +22,22 @@ class StoryViewModel(private val storyRepository: StoryRepository) : ViewModel()
         )
     }
 
+    suspend fun postStory(
+        token: String,
+        description: String,
+        lat: Float,
+        lon: Float,
+        file: File?
+    ): LiveData<Result<StoryResponse>> {
+        return storyRepository.postStory(
+            token = "Bearer $token",
+            description = description,
+            lat = lat,
+            lon = lon,
+            file = file
+        )
+    }
+
     fun getAuthenticatedUser(): LiveData<UserModel> {
         return storyRepository.getPref().getAuthenticatedUser().asLiveData()
     }

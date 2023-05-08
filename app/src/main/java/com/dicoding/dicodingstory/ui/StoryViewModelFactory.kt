@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.dicoding.dicodingstory.data.repository.StoryRepository
 import com.dicoding.dicodingstory.di.Injection
 import com.dicoding.dicodingstory.ui.dashboard.MainViewModel
+import com.dicoding.dicodingstory.ui.maps.MapsStoryViewModel
 import com.dicoding.dicodingstory.ui.story.StoryViewModel
 
 class StoryViewModelFactory private constructor(
@@ -17,6 +18,8 @@ class StoryViewModelFactory private constructor(
             return MainViewModel(storyRepository) as T
         } else if (modelClass.isAssignableFrom(StoryViewModel::class.java)) {
             return StoryViewModel(storyRepository) as T
+        } else if (modelClass.isAssignableFrom(MapsStoryViewModel::class.java)) {
+            return MapsStoryViewModel(storyRepository) as T
         }
 
         throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)

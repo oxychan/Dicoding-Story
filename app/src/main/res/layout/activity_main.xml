@@ -97,14 +97,14 @@
         app:layout_constraintEnd_toEndOf="@+id/rv_stories"
         android:contentDescription="@string/add_story" />
 
-    <ProgressBar
-        android:id="@+id/pb_dashboard"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_show_maps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/rv_stories"
-        app:layout_constraintEnd_toEndOf="@id/rv_stories"
-        app:layout_constraintStart_toStartOf="@id/rv_stories"
-        app:layout_constraintTop_toTopOf="@id/rv_stories" />
-
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_maps"
+        app:layout_constraintBottom_toTopOf="@+id/fab_add_story"
+        app:layout_constraintEnd_toEndOf="@+id/rv_stories"
+        android:contentDescription="@string/add_story" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

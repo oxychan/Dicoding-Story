@@ -1,9 +1,6 @@
 package com.dicoding.dicodingstory.data.retrofit
 
-import com.dicoding.dicodingstory.data.response.LoginResponse
-import com.dicoding.dicodingstory.data.response.RegisterResponse
-import com.dicoding.dicodingstory.data.response.StoriesResponse
-import com.dicoding.dicodingstory.data.response.StoryResponse
+import com.dicoding.dicodingstory.data.response.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -33,11 +30,29 @@ interface ApiService {
         @Query("location") location: Int
     ): StoriesResponse
 
+    @GET("stories")
+    suspend fun getStoriesWithPaging(
+        @Header("Authorization") token: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("location") location: Int
+    ): StoriesResponse
+
     @Multipart
     @POST("stories")
     suspend fun postStory(
         @Header("Authorization") token: String,
         @Part("description") description: RequestBody,
+        @Part file: MultipartBody.Part
+    ): StoryResponse
+
+    @Multipart
+    @POST("stories")
+    suspend fun postStory(
+        @Header("Authorization") token: String,
+        @Part("description") description: RequestBody,
+        @Part("lat") lat: RequestBody,
+        @Part("lon") lon: RequestBody,
         @Part file: MultipartBody.Part
     ): StoryResponse
 }

@@ -6,25 +6,26 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dicoding.dicodingstory.R
-import com.dicoding.dicodingstory.data.Result
 import com.dicoding.dicodingstory.data.models.StoryModel
 import com.dicoding.dicodingstory.data.models.UserModel
 import com.dicoding.dicodingstory.data.response.Story
 import com.dicoding.dicodingstory.databinding.ActivityMainBinding
+import com.dicoding.dicodingstory.ui.LoadingStateAdapter
 import com.dicoding.dicodingstory.ui.StoryAdapter
+import com.dicoding.dicodingstory.ui.StoryAdapterWithPaging
 import com.dicoding.dicodingstory.ui.StoryViewModelFactory
 import com.dicoding.dicodingstory.ui.auth.login.LoginActivity
+import com.dicoding.dicodingstory.ui.maps.MapsStoryActivity
 import com.dicoding.dicodingstory.ui.story.AddStoryActivity
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.util.*
@@ -45,8 +46,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         hideSystemUI()
 
-        binding.ivBtnSetting.setOnClickListener(this)
-
         val layoutManager = LinearLayoutManager(applicationContext)
         binding.rvStories.apply {
             this.layoutManager = layoutManager
@@ -56,46 +55,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val factory: StoryViewModelFactory = StoryViewModelFactory.getInstance(applicationContext)
         _viewModel = ViewModelProvider(this, factory)[MainViewModel::class.java]
 
-        var userModel: UserModel? = null
         viewModel?.getAuthenticatedUser()?.observe(this) { user ->
             val name = user.name.substringBefore(" ")
             binding.tvName.text = resources.getString(R.string.hello_name, name)
-            if (user.isAuthenticated) {
-                userModel = UserModel(
-                    name = user.name,
-                    token = user.token,
-                    isAuthenticated = true
-                )
-            }
+
             greetings()
             playAnim()
         }
 
-        lifecycleScope.launch(Dispatchers.Main) {
-            viewModel?.getStories(userModel?.token.toString(), 1, 10, 0)
-                ?.observe(this@MainActivity) { result ->
-                    when (result) {
-                        is Result.Loading -> {
-                            showPb(true)
-                        }
-                        is Result.Success -> {
-                            showPb(false)
-                            setAdapterData(result.data.listStory)
-                        }
-                        is Result.Error -> {
-                            showPb(false)
-                            showMessage(result.error)
-                        }
-                        else -> {
-                            showMessage("Something wrong")
-                        }
-                    }
-                }
-        }
-
         binding.ivBtnLogout.setOnClickListener(this)
-
+        binding.ivBtnSetting.setOnClickListener(this)
+        binding.fabShowMaps.setOnClickListener(this)
         binding.fabAddStory.setOnClickListener(this)
+
+        setAdapterDataWithPaging()
     }
 
     private fun greetings() {
@@ -110,9 +83,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         } else {
             val timeNow = Calendar.getInstance().time
 
-            @Suppress("DEPRECATION")
-            val hour = timeNow.hours
-
+            @Suppress("DEPRECATION") val hour = timeNow.hours
             binding.tvGreetings.text = when {
                 hour < 12 -> resources.getString(R.string.good_morning)
                 hour < 18 -> resources.getString(R.string.good_afternoon)
@@ -166,9 +137,30 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         binding.rvStories.adapter = adapter
     }
 
+    private fun setAdapterDataWithPaging() {
+        val adapter = StoryAdapterWithPaging()
+        binding.rvStories.adapter = adapter.withLoadStateFooter(
+            footer = LoadingStateAdapter()
+        )
+
+        adapter.setOnItemClickCallback(object : StoryAdapterWithPaging.OnItemClickCallback {
+            override fun onItemClicked(data: StoryModel) {
+                val detailIntent = Intent(this@MainActivity, DetailStoryActivity::class.java)
+                detailIntent.putExtra(EXTRA_STORY, data)
+                detailIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                startActivity(detailIntent)
+            }
+
+        })
+
+        viewModel?.getStoriesWithPaging()?.observe(this) {
+            Log.d("PaggingNih", "set adapter data")
+            adapter.submitData(lifecycle, it)
+        }
+    }
+
     private fun hideSystemUI() {
-        @Suppress("DEPRECATION")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        @Suppress("DEPRECATION") if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
         } else {
             window.setFlags(
@@ -179,52 +171,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         supportActionBar?.hide()
     }
 
-    private fun showMessage(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showPb(state: Boolean) {
-        binding.pbDashboard.visibility = if (state) View.VISIBLE else View.GONE
-    }
-
-
     override fun onResume() {
         super.onResume()
-
-        var userModel: UserModel? = null
-        viewModel?.getAuthenticatedUser()?.observe(this) { user ->
-            val name = user.name.substringBefore(" ")
-            binding.tvName.text = resources.getString(R.string.hello_name, name)
-            if (user.isAuthenticated) {
-                userModel = UserModel(
-                    name = user.name,
-                    token = user.token,
-                    isAuthenticated = true
-                )
-            }
-        }
-
-        lifecycleScope.launch(Dispatchers.Main) {
-            viewModel?.getStories(userModel?.token.toString(), 1, 10, 0)
-                ?.observe(this@MainActivity) { result ->
-                    when (result) {
-                        is Result.Loading -> {
-                            showPb(true)
-                        }
-                        is Result.Success -> {
-                            showPb(false)
-                            setAdapterData(result.data.listStory)
-                        }
-                        is Result.Error -> {
-                            showPb(false)
-                            showMessage(result.error)
-                        }
-                        else -> {
-                            showMessage("Something wrong")
-                        }
-                    }
-                }
-        }
+        setAdapterDataWithPaging()
     }
 
     override fun onClick(v: View?) {
@@ -246,6 +195,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             R.id.iv_btn_setting -> {
                 startActivity(Intent(Settings.ACTION_LOCALE_SETTINGS))
+            }
+            R.id.fab_show_maps -> {
+                val intent = Intent(this, MapsStoryActivity::class.java)
+                startActivity(intent)
             }
         }
     }

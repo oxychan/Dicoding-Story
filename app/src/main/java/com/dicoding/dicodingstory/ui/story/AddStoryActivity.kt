@@ -1,28 +1,37 @@
 package com.dicoding.dicodingstory.ui.story
 
+import android.Manifest
 import android.content.Intent
 import android.content.Intent.ACTION_GET_CONTENT
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.BoringLayout
+import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.dicoding.dicodingstory.data.Result
+import com.dicoding.dicodingstory.data.response.StoryResponse
 import com.dicoding.dicodingstory.databinding.ActivityAddStoryBinding
 import com.dicoding.dicodingstory.ui.StoryViewModelFactory
-import com.dicoding.dicodingstory.ui.dashboard.MainActivity
 import com.dicoding.dicodingstory.utils.Utils
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import com.dicoding.dicodingstory.data.Result
+import com.dicoding.dicodingstory.ui.dashboard.MainActivity
 
 class AddStoryActivity : AppCompatActivity() {
 
@@ -33,6 +42,12 @@ class AddStoryActivity : AppCompatActivity() {
     private val viewModel get() = _viewModel
 
     private var getFile: File? = null
+
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var fuseLocationClient: FusedLocationProviderClient
+
+    private var _location: Location? = null
+    private val location: Location? get() = _location
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,12 +62,17 @@ class AddStoryActivity : AppCompatActivity() {
         val factory: StoryViewModelFactory = StoryViewModelFactory.getInstance(applicationContext)
         _viewModel = ViewModelProvider(this, factory)[StoryViewModel::class.java]
 
-        if (!allPermissionGranted()) {
+        if (!allPermissionGranted() && !checkLocationPermission()) {
             ActivityCompat.requestPermissions(
                 this,
                 REQUIRED_PERMISSIONS,
                 REQUEST_CODE_PERMISSIONS
             )
+        }
+
+        var isLocationChecked: Boolean = false
+        binding.cbLocation.setOnFocusChangeListener { _, isChecked ->
+            isLocationChecked = isChecked
         }
 
         binding.btnCameraX.setOnClickListener { startCameraX() }
@@ -62,32 +82,61 @@ class AddStoryActivity : AppCompatActivity() {
             viewModel?.getAuthenticatedUser()?.observe(this@AddStoryActivity) { authenticatedUser ->
                 lifecycleScope.launch(Dispatchers.Main) {
                     val desc = binding.etDesc.text.toString()
-                    viewModel?.postStory(authenticatedUser.token, desc, getFile)
-                        ?.observe(this@AddStoryActivity) { result ->
-                            when (result) {
-                                is Result.Loading -> {
-                                    disableForm(state = true, clear = false)
-                                    showPb(true)
-                                }
-                                is Result.Success -> {
-                                    showPb(false)
-                                    disableForm(state = true, clear = true)
-                                    val intent =
-                                        Intent(this@AddStoryActivity, MainActivity::class.java)
-                                    intent.flags =
-                                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                    startActivity(intent)
-                                    finish()
-                                }
-                                is Result.Error -> {
-                                    disableForm(state = false, clear = true)
-                                    showMessage(result.error)
-                                }
+                    viewModel?.apply {
+                        if (isLocationChecked) {
+                            postStory(
+                                authenticatedUser.token,
+                                desc,
+                                location?.latitude!!.toFloat(),
+                                location?.longitude!!.toFloat(),
+                                getFile
+                            ).observe(this@AddStoryActivity) { result ->
+                                responseHandler(result)
+                            }
+                        } else {
+                            postStory(
+                                authenticatedUser.token,
+                                desc,
+                                getFile
+                            ).observe(this@AddStoryActivity) { result ->
+                                responseHandler(result)
                             }
                         }
+                    }
                 }
             }
         }
+
+        fuseLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        createLocationRequest()
+    }
+
+    private fun responseHandler(result: Result<StoryResponse>) {
+        when (result) {
+            is Result.Loading -> {
+                disableForm(state = true, clear = false)
+                showPb(true)
+            }
+            is Result.Success -> {
+                showPb(false)
+                disableForm(state = true, clear = true)
+                val intent =
+                    Intent(this@AddStoryActivity, MainActivity::class.java)
+                intent.flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }
+            is Result.Error -> {
+                disableForm(state = false, clear = true)
+                showMessage(result.error)
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        createLocationRequest()
     }
 
     private fun startCameraX() {
@@ -161,6 +210,91 @@ class AddStoryActivity : AppCompatActivity() {
         }
     }
 
+    private val resolutionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()
+        ) { result ->
+            when (result.resultCode) {
+                RESULT_CANCELED -> {
+                    Toast.makeText(
+                        this@AddStoryActivity,
+                        "you must turn your GPS on!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+    private fun checkLocationPermission() = LOCATION_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(
+            baseContext,
+            it
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            when {
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false ->
+                    getCurrentLocation()
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false ->
+                    getCurrentLocation()
+            }
+        }
+
+    private fun getCurrentLocation() {
+        if (checkLocationPermission()) {
+            fuseLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    this._location = location
+                    Log.d("YourCurrentLoc", "dieksekusi getCurrentLocation()")
+                } else {
+                    Toast.makeText(
+                        this@AddStoryActivity,
+                        "Location not found",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } else {
+            requestPermissionLauncher.launch(
+                LOCATION_PERMISSIONS
+            )
+        }
+    }
+
+    private fun createLocationRequest() {
+        @Suppress("DEPRECATION")
+        locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+        val client = LocationServices.getSettingsClient(this)
+        client.checkLocationSettings(builder.build())
+            .addOnSuccessListener {
+                getCurrentLocation()
+            }
+            .addOnFailureListener { exception ->
+                if (exception is ResolvableApiException) {
+                    try {
+                        resolutionLauncher.launch(
+                            IntentSenderRequest.Builder(exception.resolution).build()
+                        )
+                    } catch (sendEx: IntentSender.SendIntentException) {
+                        Toast.makeText(
+                            this@AddStoryActivity,
+                            sendEx.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+    }
+
     private fun showMessage(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
@@ -185,7 +319,16 @@ class AddStoryActivity : AppCompatActivity() {
     companion object {
         const val CAMERA_X_RESULT = 200
 
-        private val REQUIRED_PERMISSIONS = arrayOf(android.Manifest.permission.CAMERA)
+        private val LOCATION_PERMISSIONS = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+        private val REQUIRED_PERMISSIONS = arrayOf(
+            Manifest.permission.CAMERA,
+            *LOCATION_PERMISSIONS
+        )
         private const val REQUEST_CODE_PERMISSIONS = 10
+
     }
 }
