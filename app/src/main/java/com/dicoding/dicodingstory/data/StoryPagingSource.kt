@@ -1,18 +1,11 @@
 package com.dicoding.dicodingstory.data
 
-import android.util.Log
-import androidx.lifecycle.asLiveData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.dicoding.dicodingstory.data.local.LoginPreference
 import com.dicoding.dicodingstory.data.response.Story
-import com.dicoding.dicodingstory.data.response.StoryResponse
 import com.dicoding.dicodingstory.data.retrofit.ApiService
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import java.lang.reflect.TypeVariable
 
 class StoryPagingSource(
     private val apiService: ApiService, private val loginPreference: LoginPreference
@@ -30,10 +23,7 @@ class StoryPagingSource(
             val position = params.key ?: INITIAL_PAGE_INDEX
 
             val responseData = apiService.getStoriesWithPaging(
-                token = "Bearer $token",
-                page = position,
-                size = params.loadSize,
-                location = 0
+                token = "Bearer $token", page = position, size = params.loadSize, location = 0
             )
 
             val typeVariables: List<Story> = responseData.listStory?.filterNotNull() ?: emptyList()

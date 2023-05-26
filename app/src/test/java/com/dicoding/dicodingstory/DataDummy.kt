@@ -1,9 +1,6 @@
 package com.dicoding.dicodingstory
 
-import com.dicoding.dicodingstory.data.models.StoryModel
 import com.dicoding.dicodingstory.data.response.Story
-import com.dicoding.dicodingstory.data.response.StoryResponse
-import com.google.gson.annotations.SerializedName
 
 object DataDummy {
     fun generateDummyStoryResponse(): List<Story> {

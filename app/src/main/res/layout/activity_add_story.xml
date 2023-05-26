@@ -32,7 +32,7 @@
         android:layout_marginTop="16dp"
         android:hint="@string/enter_description"
         android:minLines="5"
-        app:layout_constraintBottom_toTopOf="@+id/btn_camera_x"
+        app:layout_constraintBottom_toTopOf="@+id/cb_location"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:inputType="text"
@@ -42,7 +42,7 @@
         android:id="@+id/cb_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/et_desc"
+        app:layout_constraintBottom_toTopOf="@+id/btn_camera_x"
         app:layout_constraintStart_toStartOf="parent"
         android:text="@string/show_my_location"/>
 
@@ -68,9 +68,9 @@
         android:elevation="2dp"
         android:scaleType="fitCenter"
         android:text="@string/gallery"
-        app:layout_constraintBottom_toTopOf="@id/btn_upload"
+        app:layout_constraintBottom_toTopOf="@+id/btn_upload"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btn_camera_x" />
+        app:layout_constraintStart_toEndOf="@+id/btn_camera_x" />
 
     <Button
         android:id="@+id/btn_upload"

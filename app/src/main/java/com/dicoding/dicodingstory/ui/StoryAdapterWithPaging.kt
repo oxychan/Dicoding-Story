@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.dicoding.dicodingstory.R
 import com.dicoding.dicodingstory.data.models.StoryModel
-import com.dicoding.dicodingstory.data.models.UserModel
 import com.dicoding.dicodingstory.data.response.Story
 import com.dicoding.dicodingstory.utils.Utils
 

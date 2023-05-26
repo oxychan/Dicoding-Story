@@ -16,11 +16,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dicoding.dicodingstory.R
 import com.dicoding.dicodingstory.data.models.StoryModel
-import com.dicoding.dicodingstory.data.models.UserModel
-import com.dicoding.dicodingstory.data.response.Story
 import com.dicoding.dicodingstory.databinding.ActivityMainBinding
 import com.dicoding.dicodingstory.ui.LoadingStateAdapter
-import com.dicoding.dicodingstory.ui.StoryAdapter
 import com.dicoding.dicodingstory.ui.StoryAdapterWithPaging
 import com.dicoding.dicodingstory.ui.StoryViewModelFactory
 import com.dicoding.dicodingstory.ui.auth.login.LoginActivity
@@ -49,7 +46,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val layoutManager = LinearLayoutManager(applicationContext)
         binding.rvStories.apply {
             this.layoutManager = layoutManager
-            this.adapter = StoryAdapter(ArrayList())
+            this.adapter = StoryAdapterWithPaging()
         }
 
         val factory: StoryViewModelFactory = StoryViewModelFactory.getInstance(applicationContext)
@@ -106,35 +103,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             playSequentially(together, logout)
             start()
         }
-    }
-
-    private fun setAdapterData(stories: List<Story?>?) {
-        val tempStories = ArrayList<StoryModel>()
-        if (stories != null) {
-            for (story in stories) {
-                tempStories.add(
-                    StoryModel(
-                        name = story?.name ?: "",
-                        photoUrl = story?.photoUrl ?: "",
-                        description = story?.description ?: "",
-                        createdAt = story?.createdAt
-                    )
-                )
-            }
-        }
-
-        val adapter = StoryAdapter(tempStories)
-        adapter.setOnItemClickCallback(object : StoryAdapter.OnItemClickCallback {
-            override fun onItemClicked(data: StoryModel) {
-                val detailIntent = Intent(this@MainActivity, DetailStoryActivity::class.java)
-                detailIntent.putExtra(EXTRA_STORY, data)
-                detailIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(detailIntent)
-            }
-
-        })
-
-        binding.rvStories.adapter = adapter
     }
 
     private fun setAdapterDataWithPaging() {

@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
-import androidx.paging.LoadStates
 import androidx.recyclerview.widget.RecyclerView
 import com.dicoding.dicodingstory.databinding.ItemLoadingBinding
 

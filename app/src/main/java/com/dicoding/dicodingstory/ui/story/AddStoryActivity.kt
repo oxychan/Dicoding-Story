@@ -10,7 +10,6 @@ import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.text.BoringLayout
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -21,17 +20,17 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.dicoding.dicodingstory.data.Result
 import com.dicoding.dicodingstory.data.response.StoryResponse
 import com.dicoding.dicodingstory.databinding.ActivityAddStoryBinding
 import com.dicoding.dicodingstory.ui.StoryViewModelFactory
+import com.dicoding.dicodingstory.ui.dashboard.MainActivity
 import com.dicoding.dicodingstory.utils.Utils
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
-import com.dicoding.dicodingstory.data.Result
-import com.dicoding.dicodingstory.ui.dashboard.MainActivity
 
 class AddStoryActivity : AppCompatActivity() {
 
@@ -58,6 +57,7 @@ class AddStoryActivity : AppCompatActivity() {
         showPb(false)
 
         binding.etDesc.isEnabled = getFile != null
+        binding.cbLocation.isEnabled = getFile != null
 
         val factory: StoryViewModelFactory = StoryViewModelFactory.getInstance(applicationContext)
         _viewModel = ViewModelProvider(this, factory)[StoryViewModel::class.java]
@@ -71,9 +71,10 @@ class AddStoryActivity : AppCompatActivity() {
         }
 
         var isLocationChecked: Boolean = false
-        binding.cbLocation.setOnFocusChangeListener { _, isChecked ->
+        binding.cbLocation.setOnCheckedChangeListener { _, isChecked ->
             isLocationChecked = isChecked
         }
+
 
         binding.btnCameraX.setOnClickListener { startCameraX() }
         binding.btnGallery.setOnClickListener { startGallery() }
@@ -158,10 +159,11 @@ class AddStoryActivity : AppCompatActivity() {
             val isBackCamera = it.data?.getBooleanExtra("isBackCamera", true) as Boolean
 
             myFile?.let { file ->
-                Utils.rotateFile(file, isBackCamera)
+//                Utils.rotateFile(file, isBackCamera)
                 getFile = file
                 binding.ivPreviewCam.setImageBitmap(BitmapFactory.decodeFile(file.path))
                 binding.etDesc.isEnabled = true
+                binding.cbLocation.isEnabled = true
             }
         }
     }
@@ -184,6 +186,7 @@ class AddStoryActivity : AppCompatActivity() {
                 getFile = myFile
                 binding.ivPreviewCam.setImageURI(uri)
                 binding.etDesc.isEnabled = true
+                binding.cbLocation.isEnabled = true
             }
         }
     }
@@ -309,6 +312,7 @@ class AddStoryActivity : AppCompatActivity() {
             btnGallery.isEnabled = !state
             btnCameraX.isEnabled = !state
             etDesc.isEnabled = !state
+            cbLocation.isEnabled = !state
 
             if (clear) {
                 etDesc.text.clear()

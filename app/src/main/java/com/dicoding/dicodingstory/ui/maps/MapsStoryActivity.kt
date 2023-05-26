@@ -1,11 +1,9 @@
 package com.dicoding.dicodingstory.ui.maps
 
 import android.content.res.Resources
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.ViewModel
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.dicoding.dicodingstory.R
@@ -30,7 +28,7 @@ class MapsStoryActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsStoryBinding
     private lateinit var viewModel: MapsStoryViewModel
-    private val stories: ArrayList<Story> = ArrayList()
+    private val stories: MutableList<Story> = mutableListOf()
     private val boundsBuilder = LatLngBounds.Builder()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,6 +61,7 @@ class MapsStoryActivity : AppCompatActivity(), OnMapReadyCallback {
 
                         }
                         is Result.Success -> {
+                            stories.clear()
                             result.data.listStory?.forEach { story ->
                                 if (story != null) {
                                     stories.add(story)

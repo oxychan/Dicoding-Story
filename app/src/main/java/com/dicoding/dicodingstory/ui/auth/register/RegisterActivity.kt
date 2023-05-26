@@ -20,7 +20,6 @@ import com.dicoding.dicodingstory.databinding.ActivityRegisterBinding
 import com.dicoding.dicodingstory.ui.AuthViewModelFactory
 import com.dicoding.dicodingstory.ui.auth.login.LoginActivity
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 
 class RegisterActivity : AppCompatActivity(), View.OnClickListener {
 
